@@ -1,0 +1,14 @@
+{
+  "skill_name": "Content Summarizer",
+  "input": {
+    "content": "Customer complaints: login broken, slow checkout, refund delay"
+  },
+  "result": {
+    "execution_id": 6,
+    "output": {
+      "content": "Customer complaints: login broken, slow checkout, refund delay",
+      "summarize": "Customers are experiencing significant issues with our platform, including a broken login system, slow checkout processes, and frustrating delays in receiving refunds. These problems are negatively impacting user experience and need immediate attention to restore customer satisfaction. Addressing these issues is crucial for retaining customers and maintaining a positive reputation.\n\n\n\n"
+    },
+    "status": "success"
+  }
+}

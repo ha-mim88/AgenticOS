@@ -1,0 +1,71 @@
+{
+  "id": 1,
+  "task_number": "T1",
+  "title": "Customer Support Complaint Summary & Action Report",
+  "thoughts": "Summarize customer support complaints and produce a markdown action report",
+  "output_spec": "Create a markdown report file with summary, issues, recommendations",
+  "max_depth": 10,
+  "max_iterations_per_depth": 500,
+  "generated_mermaid": "flowchart TD\n    A[Start] --> B[Guardrails]\n    B --> C[Skill or LLM]\n    C --> D[Output]",
+  "generated_plan": {
+    "steps": [
+      {
+        "id": "g1",
+        "action": "guardrail",
+        "message": "Validate depth and iteration limits"
+      },
+      {
+        "id": "s1",
+        "action": "skill",
+        "input_map": {
+          "content": "{thoughts}"
+        },
+        "skill_name": "Content Summarizer"
+      },
+      {
+        "id": "llm1",
+        "model": "nemotron",
+        "action": "call_llm",
+        "prompt": "Use the result of {thoughts} to continue the plan safely."
+      },
+      {
+        "id": "o1",
+        "model": "nemotron",
+        "action": "write_output",
+        "format": "markdown",
+        "prompt": "Format the final output to satisfy: {output_spec}"
+      }
+    ],
+    "title": "Customer Support Complaint Summary & Action Report",
+    "mermaid": "flowchart TD\n    A[Start] --> B[Guardrails]\n    B --> C[Skill or LLM]\n    C --> D[Output]",
+    "guardrails": {
+      "max_depth": 10,
+      "failure_policy": "stop_and_log",
+      "max_iterations_per_depth": 500
+    },
+    "generated_summary": "The analysis of recent customer support complaints reveals recurring issues with delayed response times, unresolved billing errors, and confusion over product features. These problems are primarily negative in sentiment."
+  },
+  "created_at": "2026-06-08T20:12:42",
+  "updated_at": "2026-06-08T20:12:42",
+  "executions": [
+    {
+      "id": 1,
+      "execution_guid": "ecc38771538a4a73a0adc1060dbbd4ba",
+      "task_id": 1,
+      "task_number": "T1",
+      "status": "running",
+      "token_usage": 0,
+      "model_used": null,
+      "step_count": 0,
+      "folder_path": "E:\\ha-mim88\\AgenticOS\\webapp\\runtime\\vibe\\T1\\ecc38771538a4a73a0adc1060dbbd4ba",
+      "input_data": {
+        "thoughts": "Customer complaints: login broken, slow checkout, refund delay",
+        "output_spec": "Create markdown report"
+      },
+      "output_data": null,
+      "error_message": null,
+      "started_at": "2026-06-08T20:12:42",
+      "completed_at": null
+    }
+  ]
+}

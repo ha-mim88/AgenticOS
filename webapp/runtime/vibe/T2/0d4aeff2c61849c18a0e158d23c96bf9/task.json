@@ -1,0 +1,71 @@
+{
+  "id": 2,
+  "task_number": "T2",
+  "title": "Top 5 English News Sites in Bangladesh – Unique Stories Summarized",
+  "thoughts": "make a list of top 5 English news sites form bd and extract top stories, then by agentic evaluation categorize them into unique story in different sources and then summarize a generic title and brief story recap in a json with links and dates",
+  "output_spec": "a json tree whre story line is the root under it dates under it sources with links",
+  "max_depth": 10,
+  "max_iterations_per_depth": 500,
+  "generated_mermaid": "flowchart TD\n    A[Start] --> B[Guardrails]\n    B --> C[Skill or LLM]\n    C --> D[Output]",
+  "generated_plan": {
+    "steps": [
+      {
+        "id": "g1",
+        "action": "guardrail",
+        "message": "Validate depth and iteration limits"
+      },
+      {
+        "id": "s1",
+        "action": "skill",
+        "input_map": {
+          "content": "{thoughts}"
+        },
+        "skill_name": "Content Summarizer"
+      },
+      {
+        "id": "llm1",
+        "model": "nemotron",
+        "action": "call_llm",
+        "prompt": "Use the result of {thoughts} to continue the plan safely."
+      },
+      {
+        "id": "o1",
+        "model": "nemotron",
+        "action": "write_output",
+        "format": "markdown",
+        "prompt": "Format the final output to satisfy: {output_spec}"
+      }
+    ],
+    "title": "Top 5 English News Sites in Bangladesh – Unique Stories Summarized",
+    "mermaid": "flowchart TD\n    A[Start] --> B[Guardrails]\n    B --> C[Skill or LLM]\n    C --> D[Output]",
+    "guardrails": {
+      "max_depth": 10,
+      "failure_policy": "stop_and_log",
+      "max_iterations_per_depth": 500
+    },
+    "generated_summary": "The plan will identify five reputable English news sites in Bangladesh, extract their latest top stories, categorize unique stories by source, and produce a JSON summary with titles, links, and dates."
+  },
+  "created_at": "2026-06-08T20:56:25",
+  "updated_at": "2026-06-08T20:56:25",
+  "executions": [
+    {
+      "id": 3,
+      "execution_guid": "0d4aeff2c61849c18a0e158d23c96bf9",
+      "task_id": 2,
+      "task_number": "T2",
+      "status": "running",
+      "token_usage": 0,
+      "model_used": null,
+      "step_count": 0,
+      "folder_path": "E:\\ha-mim88\\AgenticOS\\webapp\\runtime\\vibe\\T2\\0d4aeff2c61849c18a0e158d23c96bf9",
+      "input_data": {
+        "thoughts": "make a list of top 5 English news sites form bd and extract top stories, then by agentic evaluation categorize them into unique story in different sources and then summarize a generic title and brief story recap in a json with links and dates",
+        "output_spec": "a json tree whre story line is the root under it dates under it sources with links"
+      },
+      "output_data": null,
+      "error_message": null,
+      "started_at": "2026-06-08T20:56:31",
+      "completed_at": null
+    }
+  ]
+}

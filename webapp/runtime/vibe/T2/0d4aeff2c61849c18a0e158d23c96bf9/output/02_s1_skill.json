@@ -1,0 +1,14 @@
+{
+  "skill_name": "Content Summarizer",
+  "input": {
+    "content": "make a list of top 5 English news sites form bd and extract top stories, then by agentic evaluation categorize them into unique story in different sources and then summarize a generic title and brief story recap in a json with links and dates"
+  },
+  "result": {
+    "execution_id": 8,
+    "output": {
+      "content": "make a list of top 5 English news sites form bd and extract top stories, then by agentic evaluation categorize them into unique story in different sources and then summarize a generic title and brief story recap in a json with links and dates",
+      "summarize": "Okay, here's a breakdown of how to approach this task, followed by a conceptual JSON structure.  I can't *actually* execute the web scraping and AI analysis within this text-based interface, but I will outline the process clearly.\n\n**Process Summary:**\n\n1. **Identify Top News Sites (Bangladesh):** Compile a list of 5 prominent English-language news websites based in Bangladesh (e.g., The Daily Star, Prothom Alo English, Dhaka Tribune, BG News, BDNews24).\n2. **Extract Top Stories:**  For each site, identify the top 5-10 most important stories from their homepage or a dedicated \"top stories\" section. This involves web scraping techniques (using Python libraries like `requests` and `BeautifulSoup`).\n3. **Agentic Evaluation & Categorization:** Use an AI model (like GPT-3/4 or similar) to analyze each extracted story.  The AI will:\n"
+    },
+    "status": "success"
+  }
+}

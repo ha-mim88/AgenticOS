@@ -1,0 +1,4 @@
+{
+  "thoughts": "Summarize customer support complaints and produce a markdown action report",
+  "output_spec": "Create a markdown report file with summary, issues, recommendations"
+}

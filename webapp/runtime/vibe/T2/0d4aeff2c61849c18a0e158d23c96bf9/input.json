@@ -1,0 +1,4 @@
+{
+  "thoughts": "make a list of top 5 English news sites form bd and extract top stories, then by agentic evaluation categorize them into unique story in different sources and then summarize a generic title and brief story recap in a json with links and dates",
+  "output_spec": "a json tree whre story line is the root under it dates under it sources with links"
+}

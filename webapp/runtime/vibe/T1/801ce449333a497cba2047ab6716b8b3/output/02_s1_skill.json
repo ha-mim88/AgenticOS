@@ -1,0 +1,14 @@
+{
+  "skill_name": "Content Summarizer",
+  "input": {
+    "content": "Summarize customer support complaints and produce a markdown action report"
+  },
+  "result": {
+    "execution_id": 7,
+    "output": {
+      "content": "Summarize customer support complaints and produce a markdown action report",
+      "summarize": "Please **provide the customer support complaints**! I need the text of those complaints to be able to summarize them and create an action report. \n\nOnce you paste the complaints, I will:\n\n1. **Summarize:** Condense the key issues customers are facing into 2-3 sentences.\n2. **Action Report (Markdown):**  Present a structured report outlining the common problems, potential causes, and recommended actions to address them. This will include sections like \"Problem,\" \"Impact,\" \"Recommended Action,\" and potentially \"Priority.\"\n\n\n\n**Example of what I'll produce *after* you provide the complaints:**\n\n```markdown\n## Customer Support Complaint Summary - [Date]\n\nCustomers are primarily reporting issues with slow website loading times, difficulty navigating the mobile app, and inconsistent order fulfillment.  These problems are leading to customer frustration and a decrease in repeat purchases. Addressing these issues is crucial for improving customer satisfaction and retention.\n\n\n\n## Action Report\n\n### Problem:"
+    },
+    "status": "success"
+  }
+}
