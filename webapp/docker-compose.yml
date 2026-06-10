@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: agenticsos_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "Qaz123#"
+      MYSQL_DATABASE: agenticos
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  webapp:
+    build: .
+    container_name: agenticsos_webapp
+    environment:
+      DB_USER: root
+      DB_PASSWORD: "Qaz123#"
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: agenticos
+      AGENT_PROVIDER_URL: http://host.docker.internal:8000
+    ports:
+      - "5000:5000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - .:/app
+
+volumes:
+  mysql_data:
+

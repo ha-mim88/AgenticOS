@@ -1,0 +1,52 @@
+# Default configuration for AgenticOS
+agenticOS:
+  version: "0.1.0"
+  debug: false
+
+  api:
+    host: "0.0.0.0"
+    port: 8000
+    protocols: ["rest", "websocket"]
+
+  agents:
+    pool_size: 50
+    max_agents: 200
+    default_timeout: 30
+
+  workflow:
+    max_parallel_steps: 10
+    step_timeout: 300
+
+  intelligence:
+    llm_provider: "lmstudio"
+    llm_model: "nemotron"
+    memory_backend: "redis"
+    kg_backend: "neo4j"
+    lmstudio:
+      base_url: "http://127.0.0.1:1234/v1"
+      api_key: "lm-studio"
+      timeout_seconds: 120
+      default_model: "nemotron"
+      model_aliases:
+        nemotron: "nvidia/nemotron-3-nano-4b"
+        gemma: "google/gemma-3n-e4b"
+
+  database:
+    primary: "mysql"
+    cache: "redis"
+    mysql:
+      host: "localhost"
+      port: 3306
+      user: "root"
+      password: "Qaz123#"
+      database: "agenticos"
+
+  observability:
+    enable_traces: true
+    trace_sampling_rate: 0.1
+    metrics_interval: 60
+
+  security:
+    rate_limit: 1000
+    auth_token_expiry: 3600
+

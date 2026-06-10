@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgenticOS Workflow Sandbox</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
+:root{--blue:#2196F3;--green:#4CAF50;--red:#f44336;--orange:#FF9800;--purple:#9C27B0;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;--border:#30363d;--text:#e6edf3;--muted:#8b949e}
+.container{max-width:1440px;margin:0 auto;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+h1{font-size:22px;font-weight:700;color:#fff}
+nav{display:flex;gap:8px}
+.nav-btn{background:var(--bg3);color:var(--muted);border:1px solid var(--border);padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px;transition:all .2s}
+.nav-btn:hover{background:var(--bg4);color:#fff}.nav-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px}
+.panel-title{font-size:15px;font-weight:600;margin-bottom:16px;color:#fff;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);padding-bottom:12px}
+.hidden{display:none!important}
+
+/* Skills */
+.skill-list{display:flex;flex-direction:column;gap:8px;max-height:560px;overflow-y:auto;padding-right:4px}
+.skill-item{background:var(--bg3);padding:12px 14px;border-radius:6px;cursor:pointer;border-left:3px solid var(--blue);display:flex;justify-content:space-between;align-items:flex-start;transition:background .15s}
+.skill-item:hover{background:var(--bg4)}.skill-item.active{border-left-color:var(--green);background:rgba(76,175,80,.08)}
+.skill-name{font-weight:600;color:var(--blue);font-size:13px}.skill-desc{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
+.sact{display:flex;gap:5px;margin-left:8px;flex-shrink:0}
+.ibtn{background:none;border:1px solid var(--border);color:var(--muted);padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px;transition:all .15s}
+.ibtn:hover{background:var(--bg4);color:#fff}.ibtn.ed:hover{border-color:var(--orange);color:var(--orange)}.ibtn.dl:hover{border-color:var(--red);color:var(--red)}
+
+/* Forms */
+.fg{margin-bottom:14px}.fg label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.fg input,.fg textarea,.fg select{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 11px;border-radius:6px;font-size:13px;width:100%;transition:border .15s}
+.fg input:focus,.fg textarea:focus,.fg select:focus{outline:none;border-color:var(--blue)}
+.fg textarea{resize:vertical;min-height:80px;font-family:inherit}
+.hint{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Buttons */
+.btn{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.bp{background:var(--blue);color:#fff}.bp:hover:not(:disabled){background:#1565C0}
+.bs{background:var(--green);color:#fff}.bs:hover:not(:disabled){background:#2E7D32}
+.bw{background:var(--orange);color:#fff}.bw:hover:not(:disabled){background:#E65100}
+.bg{background:var(--bg3);border:1px solid var(--border);color:var(--text)}.bg:hover:not(:disabled){background:var(--bg4)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* Output */
+.out-box{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:14px;max-height:360px;overflow-y:auto;margin-top:12px}
+.out-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--blue);margin-bottom:6px}
+.out-text{font-family:monospace;font-size:12px;color:#cdd9e5;white-space:pre-wrap;word-break:break-word;line-height:1.7}
+.log-row{padding:2px 0 2px 8px;border-left:3px solid var(--border);margin-bottom:3px;font-size:11px;font-family:monospace}
+.log-row.INFO{border-color:var(--blue);color:var(--blue)}.log-row.ERROR{border-color:var(--red);color:var(--red)}.log-row.WARNING{border-color:var(--orange);color:var(--orange)}
+.mmd-box{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:14px;min-height:100px;display:flex;align-items:center;justify-content:center;overflow:auto}
+.mmd-box svg{max-width:100%;height:auto}
+
+/* Stats */
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:14px}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.stat-val{font-size:26px;font-weight:700;color:var(--blue);margin-top:4px}
+.stat-val.g{color:var(--green)}.stat-val.r{color:var(--red)}.stat-val.o{color:var(--orange)}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:10px;width:100%;max-width:800px;max-height:92vh;overflow-y:auto;display:flex;flex-direction:column}
+.mhd{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--border);flex-shrink:0}
+.mhd h2{font-size:17px;font-weight:700;color:#fff}
+.mclose{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;line-height:1}.mclose:hover{color:#fff}
+.mbody{padding:22px;overflow-y:auto;flex:1}
+.mfoo{display:flex;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--border);flex-shrink:0}
+
+/* Wizard steps */
+.wsteps{display:flex;margin-bottom:26px}
+.ws{flex:1;text-align:center;position:relative}
+.ws::after{content:'';position:absolute;top:15px;left:50%;width:100%;height:2px;background:var(--border);z-index:0}
+.ws:last-child::after{display:none}
+.ws-dot{width:30px;height:30px;border-radius:50%;background:var(--bg4);border:2px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;position:relative;z-index:1;transition:all .3s}
+.ws.active .ws-dot{background:var(--blue);border-color:var(--blue);color:#fff}
+.ws.done .ws-dot{background:var(--green);border-color:var(--green);color:#fff}
+.ws-lbl{font-size:10px;color:var(--muted);margin-top:5px}.ws.active .ws-lbl{color:#fff}
+
+/* Spinner */
+.spin{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading-area{text-align:center;padding:36px 20px;color:var(--muted)}
+.loading-area .spin{width:32px;height:32px;border-width:4px;margin:0 auto 12px;display:block}
+
+/* Empty state */
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty .ic{font-size:32px;margin-bottom:10px}
+
+/* Tabs */
+[id^=tab-].hidden{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🤖 AgenticOS Workflow Sandbox</h1>
+    <nav>
+      <button class="nav-btn active" onclick="showTab('skills')">⚡ Skills</button>
+      <button class="nav-btn" onclick="showTab('create')">✨ Create</button>
+      <button class="nav-btn" onclick="showTab('vibe')">🧠 Vibe Sandbox</button>
+      <button class="nav-btn" onclick="showTab('dashboard')">📊 Dashboard</button>
+    </nav>
+  </header>
+
+  <!-- ── SKILLS TAB ────────────────────────────────────────────────────── -->
+  <div id="tab-skills" class="grid2">
+    <div class="panel">
+      <div class="panel-title">
+        ⚡ Available Skills
+        <span id="skill-count" style="margin-left:auto;background:var(--bg4);color:var(--muted);padding:2px 10px;border-radius:10px;font-size:11px;font-weight:400"></span>
+      </div>
+      <div class="skill-list" id="skill-list">
+        <div class="empty"><div class="ic">🔍</div>Loading skills…</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div id="no-sel" class="empty" style="padding:70px 20px">
+        <div class="ic">👈</div>Select a skill to test it
+      </div>
+
+      <div id="skill-test" class="hidden">
+        <div class="panel-title" id="test-title">Test Skill</div>
+
+        <div class="fg">
+            <label for="test-inp">Test Input (JSON)</label>
+          <textarea class="fg" id="test-inp" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;border-radius:6px;font-family:monospace;font-size:12px;width:100%;min-height:80px;resize:vertical" placeholder='{"question": "What is AI?"}'></textarea>
+          <div class="hint">Keys must match prompt variables</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn bp" id="run-btn" onclick="runTest()">▶ Run</button>
+          <button class="btn bg" onclick="clearOut()">✕ Clear</button>
+        </div>
+        <div id="test-out" class="out-box hidden"></div>
+        <hr />
+        <div class="fg">
+          <label>Flowchart</label>
+          <div class="mmd-box" id="test-mermaid"><span style="color:var(--muted);font-size:12px">No diagram</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CREATE TAB ────────────────────────────────────────────────────── -->
+  <div id="tab-create" class="hidden" style="max-width:680px;margin:0 auto">
+    <div class="panel">
+      <div class="panel-title">✨ Create New Skill</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6">
+        Tell the Nemotron agent what your workflow should do and it will automatically design the Mermaid flowchart and step configuration for you.
+      </p>
+      <button class="btn bp" style="width:100%;justify-content:center;padding:14px;font-size:14px" onclick="openWizard()">
+        🧙 Launch Workflow Wizard
+      </button>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD TAB ─────────────────────────────────────────────────── -->
+  <div id="tab-dashboard" class="hidden">
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-title">📊 Statistics</div>
+        <div id="stats-grid" class="grid3" style="gap:12px;margin-bottom:16px"></div>
+        <div id="model-usage"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">📋 Recent Execution Logs</div>
+        <div class="out-box" id="logs-box" style="max-height:460px;margin-top:0">
+          <div class="empty" style="padding:20px"><div class="ic">🗂</div>No logs yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VIBE SANDBOX TAB ─────────────────────────────────────────────── -->
+  <div id="tab-vibe" class="hidden">
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-title">🌲 Automation Task Tree</div>
+        <div id="v-tree" class="skill-list" style="max-height:640px">
+          <div class="empty"><div class="ic">🌲</div>No tasks yet</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">🧠 Vibe Sandbox</div>
+        <div class="fg">
+          <label for="v-thoughts">What do you need done in iteration? (max depth 10, max iteration count per depth 500)</label>
+          <textarea id="v-thoughts" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;border-radius:6px;font-family:inherit;font-size:13px;width:100%;min-height:110px;resize:vertical" placeholder="Write your automation idea here. Be specific about what should happen in each iteration."></textarea>
+        </div>
+        <div class="fg">
+          <label for="v-output">Output file format / content</label>
+          <textarea id="v-output" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;border-radius:6px;font-family:inherit;font-size:13px;width:100%;min-height:90px;resize:vertical" placeholder="Example: Final output should be a Markdown report with sections for summary, tasks completed, errors, and next actions. Save as final_output.md"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn bp" onclick="generateVibePlan()">🪄 Generate Flowchart</button>
+          <button class="btn bg" onclick="resetVibe()">✕ Clear</button>
+          <button class="btn bs hidden" id="v-save-btn" onclick="saveVibeTask()">✔ Consent & Save Task</button>
+          <button class="btn bw hidden" id="v-run-btn" onclick="runVibeExecution()">▶ Execute</button>
+        </div>
+
+        <div id="v-status" style="margin-top:12px;color:var(--muted);font-size:12px"></div>
+
+        <div class="fg" style="margin-top:16px">
+          <label for="v-mermaid">Generated Mermaid Flowchart</label>
+          <div id="v-mermaid" class="mmd-box"><span style="color:var(--muted);font-size:12px">No plan generated yet</span></div>
+        </div>
+
+        <div class="fg">
+          <label for="v-plan">Generated Plan JSON</label>
+          <textarea id="v-plan" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;border-radius:6px;font-family:monospace;font-size:11px;width:100%;min-height:180px;resize:vertical" placeholder="Click Generate Flowchart first"></textarea>
+        </div>
+
+        <div class="fg">
+          <div class="out-title" style="margin-bottom:8px">Execution Logs</div>
+          <div id="v-logs" class="out-box" style="max-height:220px;margin-top:0"><div class="empty" style="padding:20px"><div class="ic">🧾</div>No execution yet</div></div>
+        </div>
+
+        <div class="fg">
+          <div class="out-title" style="margin-bottom:8px">Execution Files</div>
+          <div id="v-files" class="out-box" style="max-height:240px;margin-top:0"><div class="empty" style="padding:20px"><div class="ic">📁</div>No execution files yet</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     WIZARD MODAL
+══════════════════════════════════════════════════════════ -->
+<div id="wiz-modal" class="overlay hidden">
+  <div class="modal">
+    <div class="mhd">
+      <h2>🧙 Workflow Wizard</h2>
+      <button class="mclose" onclick="closeWizard()">×</button>
+    </div>
+    <div class="mbody">
+      <!-- Steps indicator -->
+      <div class="wsteps">
+        <div class="ws active" id="ws1"><div class="ws-dot">1</div><div class="ws-lbl">Name & Goal</div></div>
+        <div class="ws" id="ws2"><div class="ws-dot">2</div><div class="ws-lbl">AI Generation</div></div>
+        <div class="ws" id="ws3"><div class="ws-dot">3</div><div class="ws-lbl">Created!</div></div>
+      </div>
+
+      <!-- Step 1 -->
+      <div id="wstep1">
+        <div class="fg">
+          <label>Workflow Name *</label>
+          <input id="w-name" type="text" placeholder="e.g. Customer Support Bot">
+        </div>
+        <div class="fg">
+          <label>Description *</label>
+          <textarea id="w-desc" placeholder="Describe what this skill should do. Be specific about inputs and expected outputs.&#10;&#10;Example: Takes a customer complaint message, identifies the issue category, drafts an empathetic response, and suggests next steps."></textarea>
+        </div>
+        <div class="fg">
+          <label>Preferred Model</label>
+          <select id="w-model">
+            <option value="nemotron">nemotron — best for complex reasoning</option>
+            <option value="gemma">gemma — fast, simple responses</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="wstep2" class="hidden">
+        <div id="w-generating" class="loading-area">
+          <div class="spin"></div>
+          <div style="margin-top:10px;font-size:14px">Nemotron is designing your workflow…</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:5px">Usually 5–15 seconds</div>
+        </div>
+        <div id="w-generated" class="hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <span style="color:var(--green);font-weight:700;font-size:14px">✓ Workflow designed by Nemotron</span>
+            <button class="btn bg" onclick="doRegen()" style="font-size:12px;padding:6px 12px">🔄 Regenerate</button>
+          </div>
+          <div class="fg">
+            <label>Generated Flowchart</label>
+            <div class="mmd-box" id="w-mmd-preview"></div>
+          </div>
+          <div class="fg">
+            <label>Mermaid Source <span class="hint" style="display:inline">(editable)</span></label>
+            <textarea id="w-mmd" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;border-radius:6px;font-family:monospace;font-size:11px;width:100%;height:100px;resize:vertical" oninput="prevMmd('w-mmd','w-mmd-preview')"></textarea>
+          </div>
+          <div class="fg">
+            <label>Step Configuration JSON <span class="hint" style="display:inline">(editable)</span></label>
+            <textarea id="w-steps" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;border-radius:6px;font-family:monospace;font-size:11px;width:100%;height:150px;resize:vertical"></textarea>
+          </div>
+        </div>
+        <div id="w-gen-err" class="hidden" style="background:rgba(244,67,54,.1);border:1px solid var(--red);color:var(--red);padding:12px;border-radius:6px;font-size:13px"></div>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="wstep3" class="hidden" style="text-align:center;padding:28px 0">
+        <div style="font-size:52px;margin-bottom:14px">🎉</div>
+        <div style="font-size:19px;font-weight:700;color:#fff;margin-bottom:8px" id="w-done-name"></div>
+        <div style="color:var(--muted);font-size:13px;margin-bottom:26px">Your skill is ready in the sandbox</div>
+        <div class="btn-row" style="justify-content:center">
+          <button class="btn bs" onclick="closeWizard();showTab('skills')">⚡ Test it Now</button>
+          <button class="btn bg" onclick="resetWizard()">＋ Create Another</button>
+        </div>
+      </div>
+    </div>
+    <div class="mfoo" id="wfoo">
+      <button class="btn bg" onclick="closeWizard()">Cancel</button>
+      <button class="btn bp" id="w-next-btn" onclick="wizNext()">Generate with AI →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     EDIT MODAL
+══════════════════════════════════════════════════════════ -->
+<div id="edit-modal" class="overlay hidden">
+  <div class="modal">
+    <div class="mhd">
+      <h2>✏️ Edit Workflow</h2>
+      <button class="mclose" onclick="closeEdit()">×</button>
+    </div>
+    <div class="mbody">
+        <div class="fg"><label for="e-name">Name</label><input id="e-name" type="text"></div>
+      <div class="fg">
+          <label for="e-desc">Description</label>
+        <textarea id="e-desc" style="height:80px"></textarea>
+        <div class="hint">Update the description then click "Regenerate with AI" to redesign the workflow</div>
+      </div>
+      <div style="margin-bottom:16px">
+        <button class="btn bw" id="regen-btn" onclick="regenEdit()">🤖 Regenerate with AI</button>
+      </div>
+
+      <div class="fg">
+        <label for="e-mmd">Flowchart Preview</label>
+        <div class="mmd-box" id="e-mmd-preview"></div>
+      </div>
+      <div class="fg">
+        <label for="e-mmd">Mermaid Source</label>
+        <textarea id="e-mmd" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;border-radius:6px;font-family:monospace;font-size:11px;width:100%;height:100px;resize:vertical" oninput="prevMmd('e-mmd','e-mmd-preview')"></textarea>
+      </div>
+      <div class="fg">
+        <label for="e-steps">Steps JSON</label>
+        <textarea id="e-steps" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;border-radius:6px;font-family:monospace;font-size:11px;width:100%;height:130px;resize:vertical"></textarea>
+      </div>
+
+      <hr style="border-color:var(--border);margin:16px 0">
+      <div class="panel-title" style="border:none;padding:0;margin-bottom:12px">🧪 Test with Sample Input</div>
+      <div class="fg">
+        <label for="e-test-inp">Input JSON</label>
+        <textarea id="e-test-inp" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px;border-radius:6px;font-family:monospace;font-size:12px;width:100%;height:70px;resize:vertical" placeholder='{"input": "sample"}'></textarea>
+      </div>
+      <button class="btn bp" id="e-run-btn" onclick="runEditTest()">▶ Run Test</button>
+      <div id="e-test-out" class="out-box hidden" style="margin-top:12px"></div>
+    </div>
+    <div class="mfoo">
+      <button class="btn bg" onclick="closeEdit()">Cancel</button>
+      <button class="btn bs" onclick="saveEdit()">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+mermaid.initialize({startOnLoad:false,theme:'dark',securityLevel:'loose'});
+const API='/api';
+let curWF=null, editWF=null, wizStepN=1;
+let vibeDraft=null, vibeTask=null, vibeExecutionGuid=null, vibeLogPoll=null;
+
+// ── Tabs ──────────────────────────────────────────────────────────────────
+function showTab(t){
+  ['skills','create','vibe','dashboard'].forEach((n,i)=>{
+    document.getElementById('tab-'+n).classList.toggle('hidden',n!==t);
+    document.querySelectorAll('.nav-btn')[i].classList.toggle('active',n===t);
+  });
+  if(t==='vibe')loadVibeTree();
+  if(t==='dashboard')loadDashboard();
+}
+
+// ── Mermaid ───────────────────────────────────────────────────────────────
+async function renderMmd(elId, def){
+  const el=document.getElementById(elId);
+  if(!def?.trim()){el.innerHTML='<span style="color:var(--muted);font-size:12px">No diagram</span>';return;}
+  try{
+    const {svg}=await mermaid.render('mmd'+Math.random().toString(36).slice(2),def.trim());
+    el.innerHTML=svg;
+  }catch(e){el.innerHTML=`<pre style="font-size:11px;color:var(--orange);text-align:left">${esc(def)}</pre>`;}
+}
+function prevMmd(srcId,dstId){renderMmd(dstId,document.getElementById(srcId).value);}
+
+// ── Skills list ───────────────────────────────────────────────────────────
+async function loadSkills(){
+  const res=await fetch(`${API}/workflows`);
+  const list=await res.json();
+  document.getElementById('skill-count').textContent=list.length;
+  const c=document.getElementById('skill-list');
+  if(!list.length){c.innerHTML='<div class="empty"><div class="ic">📭</div>No skills yet</div>';return;}
+  c.innerHTML=list.map(w=>`
+    <div class="skill-item" id="si${w.id}" onclick="selectSkill(${w.id})">
+      <div style="flex:1;min-width:0">
+        <div class="skill-name">${esc(w.name)}</div>
+        <div class="skill-desc">${esc(w.description||'')}</div>
+      </div>
+      <div class="sact" onclick="event.stopPropagation()">
+        <button class="ibtn ed" onclick="openEdit(${w.id})" title="Edit">✏️</button>
+        <button class="ibtn dl" onclick="delSkill(${w.id},'${w.name.replace(/'/g,"\\'")}')" title="Delete">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+async function selectSkill(id){
+  document.querySelectorAll('.skill-item').forEach(e=>e.classList.remove('active'));
+  document.getElementById('si'+id)?.classList.add('active');
+  const res=await fetch(`${API}/workflows/${id}`);
+  curWF=await res.json();
+  document.getElementById('no-sel').classList.add('hidden');
+  document.getElementById('skill-test').classList.remove('hidden');
+  document.getElementById('test-title').textContent='⚡ '+curWF.name;
+  await renderMmd('test-mermaid',curWF.mermaid_definition);
+  document.getElementById('test-inp').value=sampleInput(curWF.steps);
+  document.getElementById('test-out').classList.add('hidden');
+}
+
+function sampleInput(steps){
+  if(!steps?.length)return'{}';
+  const v={};
+  steps.forEach(s=>{(s.prompt||'').match(/\{(\w+)\}/g)?.forEach(m=>{const k=m.replace(/[{}]/g,'');if(!v[k])v[k]='sample '+k;});});
+  return JSON.stringify(v,null,2);
+}
+
+async function delSkill(id,name){
+  if(!confirm(`Delete "${name}"?`))return;
+  await fetch(`${API}/workflows/${id}`,{method:'DELETE'});
+  if(curWF?.id===id){curWF=null;document.getElementById('skill-test').classList.add('hidden');document.getElementById('no-sel').classList.remove('hidden');}
+  loadSkills();
+}
+
+// ── Run test ──────────────────────────────────────────────────────────────
+async function runTest(){
+  if(!curWF)return;
+  const btn=document.getElementById('run-btn');
+  setLoading(btn,true,'▶ Run');
+  let inp={};
+  try{inp=JSON.parse(document.getElementById('test-inp').value||'{}');}catch{alert('Invalid JSON');setLoading(btn,false,'▶ Run');return;}
+  try{
+    const res=await fetch(`${API}/workflows/${curWF.id}/execute`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(inp)});
+    const r=await res.json();
+    showOutput(r,'test-out');
+  }catch(e){alert(e.message);}
+  setLoading(btn,false,'▶ Run');
+}
+
+function clearOut(){document.getElementById('test-out').classList.add('hidden');document.getElementById('test-out').innerHTML='';}
+
+async function showOutput(result,containerId){
+  const c=document.getElementById(containerId);
+  c.classList.remove('hidden');
+  const sc=result.status==='success'?'var(--green)':result.status==='failed'?'var(--red)':'var(--orange)';
+  let h=`<div style="margin-bottom:12px"><span style="background:${sc}22;color:${sc};padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700">${result.status?.toUpperCase()}</span>${result.execution_id?`<span style="color:var(--muted);font-size:11px;margin-left:8px">exec #${result.execution_id}</span>`:''}</div>`;
+
+  if(result.output){
+    let txt='';
+    if(typeof result.output==='object'){
+      Object.entries(result.output).forEach(([k,v])=>{if(typeof v==='string'&&v)txt+=`[${k}]\n${v}\n\n`;});
+    }else txt=String(result.output);
+    h+=`<div class="out-title">🤖 Agent Output</div><div class="out-text">${esc(txt.trim())}</div>`;
+  }
+  if(result.error){h+=`<div class="out-title" style="color:var(--red);margin-top:10px">Error</div><div class="out-text" style="color:var(--red)">${esc(result.error)}</div>`;}
+
+  if(result.execution_id){
+    try{
+      const er=await fetch(`${API}/executions/${result.execution_id}`);
+      const ex=await er.json();
+      if(ex.metrics?.length){
+        const m=ex.metrics[0];
+        h+=`<div class="out-title" style="margin-top:10px">⏱ Performance</div><div class="out-text">Model: ${m.model} · Tokens: ${m.tokens_used} · Latency: ${Math.round(m.latency_ms)}ms</div>`;
+      }
+      if(ex.logs?.length){
+        h+=`<div class="out-title" style="margin-top:10px">📋 Logs</div>`+ex.logs.map(l=>`<div class="log-row ${l.level}">[${l.level}] ${l.step_id||''}: ${esc(l.message)}</div>`).join('');
+      }
+    }catch(e){}
+  }
+  c.innerHTML=h;
+}
+
+// ── Wizard ────────────────────────────────────────────────────────────────
+function openWizard(){document.getElementById('wiz-modal').classList.remove('hidden');setWStep(1);}
+function closeWizard(){document.getElementById('wiz-modal').classList.add('hidden');}
+function resetWizard(){document.getElementById('w-name').value='';document.getElementById('w-desc').value='';setWStep(1);}
+function setWStep(n){
+  wizStepN=n;
+  [1,2,3].forEach(i=>{
+    document.getElementById('wstep'+i).classList.toggle('hidden',i!==n);
+    const d=document.getElementById('ws'+i);
+    d.classList.remove('active','done');
+    if(i<n)d.classList.add('done');else if(i===n)d.classList.add('active');
+  });
+  const btn=document.getElementById('w-next-btn'),foo=document.getElementById('wfoo');
+  if(n===1){btn.textContent='Generate with AI →';btn.style.display='';foo.classList.remove('hidden');}
+  if(n===2){btn.textContent='✓ Create Workflow';btn.style.display='';foo.classList.remove('hidden');}
+  if(n===3){foo.classList.add('hidden');}
+}
+
+async function wizNext(){
+  if(wizStepN===1){
+    const name=document.getElementById('w-name').value.trim();
+    const desc=document.getElementById('w-desc').value.trim();
+    if(!name||!desc){alert('Please fill in name and description.');return;}
+    setWStep(2);await doGenerate(name,desc);
+  }else if(wizStepN===2){
+    await createWF();
+  }
+}
+
+async function doGenerate(name,desc){
+  document.getElementById('w-generating').classList.remove('hidden');
+  document.getElementById('w-generated').classList.add('hidden');
+  document.getElementById('w-gen-err').classList.add('hidden');
+  document.getElementById('w-next-btn').disabled=true;
+  try{
+    const res=await fetch(`${API}/workflows/generate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,description:desc})});
+    const d=await res.json();
+    if(!res.ok||d.error)throw new Error(d.error||'Generation failed');
+    document.getElementById('w-mmd').value=d.mermaid||'';
+    document.getElementById('w-steps').value=JSON.stringify(d.steps||[],null,2);
+    await renderMmd('w-mmd-preview',d.mermaid);
+    document.getElementById('w-generating').classList.add('hidden');
+    document.getElementById('w-generated').classList.remove('hidden');
+    document.getElementById('w-next-btn').disabled=false;
+  }catch(e){
+    document.getElementById('w-generating').classList.add('hidden');
+    document.getElementById('w-gen-err').textContent='⚠ '+e.message;
+    document.getElementById('w-gen-err').classList.remove('hidden');
+    document.getElementById('w-next-btn').disabled=false;
+    document.getElementById('w-next-btn').textContent='Retry';
+    wizStepN=1;
+  }
+}
+
+async function doRegen(){
+  const name=document.getElementById('w-name').value.trim();
+  const desc=document.getElementById('w-desc').value.trim();
+  document.getElementById('w-generated').classList.add('hidden');
+  document.getElementById('w-next-btn').disabled=true;
+  await doGenerate(name,desc);
+}
+
+async function createWF(){
+  const name=document.getElementById('w-name').value.trim();
+  const desc=document.getElementById('w-desc').value.trim();
+  const mmd=document.getElementById('w-mmd').value.trim();
+  let steps=[];
+  try{steps=JSON.parse(document.getElementById('w-steps').value||'[]');}catch{alert('Fix steps JSON first');return;}
+  const res=await fetch(`${API}/workflows`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,description:desc,mermaid_definition:mmd,steps})});
+  const d=await res.json();
+  if(!res.ok){alert('Create failed: '+(d.error||'unknown'));return;}
+  document.getElementById('w-done-name').textContent=name;
+  setWStep(3);loadSkills();
+}
+
+// ── Edit modal ────────────────────────────────────────────────────────────
+async function openEdit(id){
+  const res=await fetch(`${API}/workflows/${id}`);
+  editWF=await res.json();
+  document.getElementById('e-name').value=editWF.name;
+  document.getElementById('e-desc').value=editWF.description||'';
+  document.getElementById('e-mmd').value=editWF.mermaid_definition||'';
+  document.getElementById('e-steps').value=JSON.stringify(editWF.steps||[],null,2);
+  document.getElementById('e-test-inp').value=sampleInput(editWF.steps);
+  document.getElementById('e-test-out').classList.add('hidden');
+  await renderMmd('e-mmd-preview',editWF.mermaid_definition);
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+function closeEdit(){document.getElementById('edit-modal').classList.add('hidden');}
+
+async function regenEdit(){
+  const btn=document.getElementById('regen-btn');
+  setLoading(btn,true,'🤖 Regenerate with AI');
+  try{
+    const res=await fetch(`${API}/workflows/generate`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:document.getElementById('e-name').value,description:document.getElementById('e-desc').value})});
+    const d=await res.json();
+    if(!res.ok||d.error)throw new Error(d.error||'Failed');
+    document.getElementById('e-mmd').value=d.mermaid||'';
+    document.getElementById('e-steps').value=JSON.stringify(d.steps||[],null,2);
+    document.getElementById('e-test-inp').value=sampleInput(d.steps);
+    await renderMmd('e-mmd-preview',d.mermaid);
+  }catch(e){alert('Regeneration failed: '+e.message);}
+  setLoading(btn,false,'🤖 Regenerate with AI');
+}
+
+async function saveEdit(){
+  if(!editWF)return;
+  let steps=[];
+  try{steps=JSON.parse(document.getElementById('e-steps').value||'[]');}catch{alert('Steps JSON invalid');return;}
+  await fetch(`${API}/workflows/${editWF.id}`,{method:'PUT',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:document.getElementById('e-name').value,description:document.getElementById('e-desc').value,mermaid_definition:document.getElementById('e-mmd').value,steps})});
+  closeEdit();loadSkills();
+  if(curWF?.id===editWF.id)selectSkill(editWF.id);
+}
+
+async function runEditTest(){
+  if(!editWF)return;
+  const btn=document.getElementById('e-run-btn');
+  setLoading(btn,true,'▶ Run Test');
+  let steps=[],inp={};
+  try{steps=JSON.parse(document.getElementById('e-steps').value||'[]');}catch{alert('Fix steps JSON');setLoading(btn,false,'▶ Run Test');return;}
+  try{inp=JSON.parse(document.getElementById('e-test-inp').value||'{}');}catch{alert('Fix test input JSON');setLoading(btn,false,'▶ Run Test');return;}
+  try{
+    await fetch(`${API}/workflows/${editWF.id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({steps})});
+    const res=await fetch(`${API}/workflows/${editWF.id}/execute`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(inp)});
+    const r=await res.json();
+    showOutput(r,'e-test-out');
+  }catch(e){alert(e.message);}
+  setLoading(btn,false,'▶ Run Test');
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────
+async function loadDashboard(){
+  try{
+    const res=await fetch(`${API}/stats`);
+    const s=await res.json();
+    document.getElementById('stats-grid').innerHTML=`
+      <div class="stat-card"><div class="stat-label">Total Runs</div><div class="stat-val">${s.total_executions}</div></div>
+      <div class="stat-card"><div class="stat-label">Successful</div><div class="stat-val g">${s.successful}</div></div>
+      <div class="stat-card"><div class="stat-label">Failed</div><div class="stat-val r">${s.failed}</div></div>
+      <div class="stat-card"><div class="stat-label">Total Tokens</div><div class="stat-val o">${(s.total_tokens_used||0).toLocaleString()}</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Latency</div><div class="stat-val">${Math.round(s.avg_latency_ms)}ms</div></div>
+      <div class="stat-card"><div class="stat-label">Skill Count</div><div class="stat-val">${document.getElementById('skill-count').textContent||'—'}</div></div>
+    `;
+    if(s.model_usage?.length){
+      document.getElementById('model-usage').innerHTML=`
+        <div class="out-title" style="margin-bottom:8px">Model Breakdown</div>
+        ${s.model_usage.map(m=>`
+          <div style="display:flex;justify-content:space-between;background:var(--bg3);padding:9px 12px;border-radius:6px;margin-bottom:6px;font-size:13px">
+            <span>${m.model}</span><span style="color:var(--muted)">${m.executions} runs · ${(m.total_tokens||0).toLocaleString()} tokens</span>
+          </div>`).join('')}`;
+    }
+  }catch(e){console.error(e);}
+
+  try{
+    const res=await fetch(`${API}/executions/recent`);
+    if(res.ok){
+      const logs=await res.json();
+      const box=document.getElementById('logs-box');
+      if(!logs?.length){box.innerHTML='<div class="empty" style="padding:20px"><div class="ic">🗂</div>No logs yet</div>';return;}
+      box.innerHTML=logs.map(l=>`<div class="log-row ${l.level}">[${l.level}] ${(l.timestamp||'').slice(11,19)} ${l.step_id||''}: ${esc(l.message)}</div>`).join('');
+    }
+  }catch(e){}
+}
+
+// ── Vibe Sandbox ──────────────────────────────────────────────────────────
+function resetVibe(){
+  vibeDraft=null; vibeTask=null; vibeExecutionGuid=null;
+  document.getElementById('v-thoughts').value='';
+  document.getElementById('v-output').value='';
+  document.getElementById('v-plan').value='';
+  document.getElementById('v-status').textContent='';
+  document.getElementById('v-save-btn').classList.add('hidden');
+  document.getElementById('v-run-btn').classList.add('hidden');
+  document.getElementById('v-mermaid').innerHTML='<span style="color:var(--muted);font-size:12px">No plan generated yet</span>';
+  document.getElementById('v-logs').innerHTML='<div class="empty" style="padding:20px"><div class="ic">🧾</div>No execution yet</div>';
+  document.getElementById('v-files').innerHTML='<div class="empty" style="padding:20px"><div class="ic">📁</div>No execution files yet</div>';
+}
+
+async function generateVibePlan(){
+  const thoughts=document.getElementById('v-thoughts').value.trim();
+  const output=document.getElementById('v-output').value.trim();
+  if(!thoughts||!output){alert('Please fill in both Vibe Sandbox fields.');return;}
+  document.getElementById('v-status').textContent='Generating flowchart with Nemotron…';
+  const res=await fetch(`${API}/vibe/generate`,{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({thoughts:thoughts, output_spec:output, max_depth:10, max_iterations_per_depth:500})
+  });
+  const d=await res.json();
+  if(!res.ok){document.getElementById('v-status').textContent='⚠ '+(d.error||'Generation failed');return;}
+  vibeDraft=d;
+  document.getElementById('v-plan').value=JSON.stringify(d,null,2);
+  document.getElementById('v-status').textContent='Plan generated. Review then consent to save as a task (T1, T2, ...).';
+  await renderMmd('v-mermaid', d.mermaid || '');
+  document.getElementById('v-save-btn').classList.remove('hidden');
+}
+
+async function saveVibeTask(){
+  if(!vibeDraft){alert('Generate a plan first.');return;}
+  const title=(vibeDraft.title||'Vibe Task').trim();
+  const thoughts=document.getElementById('v-thoughts').value.trim();
+  const output=document.getElementById('v-output').value.trim();
+  const res=await fetch(`${API}/vibe/tasks`,{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      title:title,
+      thoughts:thoughts,
+      output_spec:output,
+      generated_mermaid:vibeDraft.mermaid,
+      generated_plan:vibeDraft,
+      max_depth:10,
+      max_iterations_per_depth:500,
+    })
+  });
+  const d=await res.json();
+  if(!res.ok){alert(d.error||'Save failed');return;}
+  vibeTask=d;
+  document.getElementById('v-status').textContent=`Saved as ${d.task_number}. You can now execute it.`;
+  document.getElementById('v-run-btn').classList.remove('hidden');
+  await loadVibeTree();
+}
+
+async function runVibeExecution(){
+  if(!vibeTask){alert('Save the task first.');return;}
+  const res=await fetch(`${API}/vibe/tasks/${vibeTask.id}/execute`,{
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({thoughts:document.getElementById('v-thoughts').value.trim(), output_spec:document.getElementById('v-output').value.trim()})
+  });
+  const d=await res.json();
+  if(!res.ok){alert(d.error||'Execution start failed');return;}
+  vibeExecutionGuid=d.execution_guid;
+  document.getElementById('v-status').textContent=`Execution started: ${d.execution_guid}`;
+  if(vibeLogPoll)clearInterval(vibeLogPoll);
+  await loadVibeExecutionUI(vibeExecutionGuid);
+  vibeLogPoll=setInterval(()=>pollVibeExecution(vibeExecutionGuid),2000);
+}
+
+async function pollVibeExecution(guid){
+  if(!guid)return;
+  const res=await fetch(`${API}/vibe/executions/${guid}`);
+  if(!res.ok)return;
+  const d=await res.json();
+  await loadVibeExecutionUI(guid);
+  if(d.status!=='running' && vibeLogPoll){clearInterval(vibeLogPoll); vibeLogPoll=null;}
+}
+
+async function loadVibeExecutionUI(guid){
+  const logsRes=await fetch(`${API}/vibe/executions/${guid}/logs`);
+  const logs=await logsRes.json();
+  const logBox=document.getElementById('v-logs');
+  logBox.innerHTML=logs.length ? logs.map(l=>`<div class="log-row ${l.level}">[${l.level}] ${l.step_id||''}: ${esc(l.message)}</div>`).join('') : '<div class="empty" style="padding:20px"><div class="ic">🧾</div>No logs yet</div>';
+
+  const treeRes=await fetch(`${API}/vibe/executions/${guid}/tree`);
+  if(treeRes.ok){
+    const tree=await treeRes.json();
+    document.getElementById('v-files').innerHTML=renderFileTree(tree);
+  }
+}
+
+async function loadVibeTree(){
+  const res=await fetch(`${API}/vibe/tree`);
+  const tasks=await res.json();
+  const box=document.getElementById('v-tree');
+  if(!tasks.length){box.innerHTML='<div class="empty"><div class="ic">🌲</div>No tasks yet</div>';return;}
+  box.innerHTML=tasks.map(t=>`<details open class="skill-item" style="border-left-color:var(--purple);cursor:default;padding:10px 12px" onclick="event.stopPropagation()">
+      <summary style="list-style:none;cursor:pointer" onclick="selectVibeTask(${t.id})">
+        <div class="skill-name">${t.task_number} · ${esc(t.title)}</div>
+        <div class="skill-desc">${esc(t.output_spec.slice(0,120))}${t.output_spec.length>120?'…':''}</div>
+      </summary>
+      <div style="margin-top:8px;padding-left:4px">
+        ${(t.executions||[]).map(e=>`<div class="skill-item" style="border-left-color:var(--orange);margin-top:8px;cursor:pointer" onclick="selectVibeExecution('${e.execution_guid}')">
+          <div class="skill-info">
+            <div class="skill-name" style="color:var(--orange)">${e.execution_guid.slice(0,8)}…</div>
+            <div class="skill-desc">${e.status} · ${e.started_at.slice(0,19).replace('T',' ')}</div>
+          </div>
+        </div>`).join('') || '<div class="hint">No executions yet</div>'}
+      </div>
+    </details>`).join('');
+}
+
+async function selectVibeTask(taskId){
+  const res=await fetch(`${API}/vibe/tasks/${taskId}`);
+  const task=await res.json();
+  vibeTask=task;
+  vibeDraft=task.generated_plan;
+  document.getElementById('v-thoughts').value=task.thoughts;
+  document.getElementById('v-output').value=task.output_spec;
+  document.getElementById('v-plan').value=JSON.stringify(task.generated_plan||{},null,2);
+  document.getElementById('v-save-btn').classList.remove('hidden');
+  document.getElementById('v-run-btn').classList.remove('hidden');
+  await renderMmd('v-mermaid', task.generated_mermaid||'');
+  document.getElementById('v-status').textContent=`Selected ${task.task_number}. You may regenerate, save updates, or execute.`;
+}
+
+async function selectVibeExecution(guid){
+  vibeExecutionGuid=guid;
+  await loadVibeExecutionUI(guid);
+  const res=await fetch(`${API}/vibe/executions/${guid}`);
+  if(res.ok){
+    const d=await res.json();
+    document.getElementById('v-status').textContent=`Selected execution ${guid} (${d.status})`;
+  }
+}
+
+function renderFileTree(node, prefix=''){
+  if(!node)return '<div class="empty"><div class="ic">📁</div>No files</div>';
+  if(node.type==='file'){
+    const path = prefix ? `${prefix}/${node.name}` : node.name;
+    return `<div class="skill-item" style="border-left-color:var(--blue);cursor:pointer" onclick="openVibeFile('${encodeURIComponent(path)}')">
+      <div class="skill-info"><div class="skill-name" style="color:var(--blue)">${esc(node.name)}</div><div class="skill-desc">${esc(path)}</div></div>
+    </div>`;
+  }
+  const children=(node.children||[]).map(ch=>renderFileTree(ch, node.path ? node.path : prefix)).join('');
+  return `<details open class="skill-item" style="border-left-color:var(--green);cursor:default;padding:10px 12px">
+    <summary style="list-style:none;cursor:pointer"><div class="skill-name" style="color:var(--green)">📁 ${esc(node.name||'root')}</div></summary>
+    <div style="margin-left:10px;margin-top:8px">${children || '<div class="hint">Empty folder</div>'}</div>
+  </details>`;
+}
+
+async function openVibeFile(encodedPath){
+  if(!vibeExecutionGuid)return;
+  const path=decodeURIComponent(encodedPath);
+  const res=await fetch(`${API}/vibe/executions/${vibeExecutionGuid}/files?path=${encodeURIComponent(path)}`);
+  const d=await res.json();
+  const viewer=document.getElementById('v-files');
+  viewer.innerHTML=`<div class="panel-title" style="border:none;padding:0 0 8px 0;margin:0 0 10px 0">${esc(d.name)} <span class="hint" style="margin-left:8px">${esc(d.path)}</span></div><pre class="out-text" style="white-space:pre-wrap">${esc(d.content)}</pre><div class="btn-row"><button class="btn bg" onclick="loadVibeExecutionUI('${vibeExecutionGuid}')">↩ Back</button><a class="btn bp" href="${API}/vibe/executions/${vibeExecutionGuid}/files?path=${encodeURIComponent(path)}&download=1" target="_blank">⬇ Download</a></div>`;
+}
+
+function setVibeStatus(text){document.getElementById('v-status').textContent=text;}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setLoading(btn,on,label){
+  btn.disabled=on;
+  btn.innerHTML=on?`<div class="spin" style="width:14px;height:14px;border-width:2px"></div> Please wait…`:label;
+}
+
+loadSkills();
+</script>
+</body>
+</html>
+

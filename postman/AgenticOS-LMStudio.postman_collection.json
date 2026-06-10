@@ -1,0 +1,102 @@
+{
+  "info": {
+    "name": "AgenticOS LM Studio",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Models",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v1/models",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "models"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Chat (Nemotron)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"nemotron\",\n  \"messages\": [\n    {\"role\": \"user\", \"content\": \"Write one short greeting.\"}\n  ],\n  \"temperature\": 0.2,\n  \"max_tokens\": 80\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/chat/completions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "chat",
+            "completions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Chat (Gemma)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"gemma\",\n  \"messages\": [\n    {\"role\": \"user\", \"content\": \"Write one short greeting.\"}\n  ],\n  \"temperature\": 0.2,\n  \"max_tokens\": 80\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/chat/completions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "chat",
+            "completions"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    }
+  ]
+}
+

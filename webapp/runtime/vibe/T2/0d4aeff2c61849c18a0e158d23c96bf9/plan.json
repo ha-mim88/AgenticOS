@@ -1,0 +1,38 @@
+{
+  "steps": [
+    {
+      "id": "g1",
+      "action": "guardrail",
+      "message": "Validate depth and iteration limits"
+    },
+    {
+      "id": "s1",
+      "action": "skill",
+      "input_map": {
+        "content": "{thoughts}"
+      },
+      "skill_name": "Content Summarizer"
+    },
+    {
+      "id": "llm1",
+      "model": "nemotron",
+      "action": "call_llm",
+      "prompt": "Use the result of {thoughts} to continue the plan safely."
+    },
+    {
+      "id": "o1",
+      "model": "nemotron",
+      "action": "write_output",
+      "format": "markdown",
+      "prompt": "Format the final output to satisfy: {output_spec}"
+    }
+  ],
+  "title": "Top 5 English News Sites in Bangladesh – Unique Stories Summarized",
+  "mermaid": "flowchart TD\n    A[Start] --> B[Guardrails]\n    B --> C[Skill or LLM]\n    C --> D[Output]",
+  "guardrails": {
+    "max_depth": 10,
+    "failure_policy": "stop_and_log",
+    "max_iterations_per_depth": 500
+  },
+  "generated_summary": "The plan will identify five reputable English news sites in Bangladesh, extract their latest top stories, categorize unique stories by source, and produce a JSON summary with titles, links, and dates."
+}

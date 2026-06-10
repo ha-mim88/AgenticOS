@@ -4,7 +4,63 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="07d053bd-5589-42b6-a8ae-1367e69a8318" name="Changes" comment="initial" />
+    <list default="true" id="07d053bd-5589-42b6-a8ae-1367e69a8318" name="Changes" comment="initial">
+      <change afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QUICK_START.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/agents/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/agents/base.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/agents/manager.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/auth.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/gateway.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/handlers/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/handlers/rest_handler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/settings.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/exceptions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/messaging.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/registry.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/infrastructure/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/intelligence/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/intelligence/lmstudio_client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/postman/AgenticOS-LMStudio.postman_collection.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_braces.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_vibe_sandbox.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/test_agent_models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/test_messaging.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/QUICKSTART.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/app.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/routes.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/runtime/vibe/T1/801ce449333a497cba2047ab6716b8b3/logs/events.jsonl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/runtime/vibe/T1/801ce449333a497cba2047ab6716b8b3/output/final_output.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/runtime/vibe/T1/801ce449333a497cba2047ab6716b8b3/plan.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/runtime/vibe/T1/ecc38771538a4a73a0adc1060dbbd4ba/logs/events.jsonl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/runtime/vibe/T1/ecc38771538a4a73a0adc1060dbbd4ba/output/final_output.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/runtime/vibe/T1/ecc38771538a4a73a0adc1060dbbd4ba/plan.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/runtime/vibe/T2/0d4aeff2c61849c18a0e158d23c96bf9/logs/events.jsonl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/runtime/vibe/T2/0d4aeff2c61849c18a0e158d23c96bf9/output/final_output.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/runtime/vibe/T2/0d4aeff2c61849c18a0e158d23c96bf9/plan.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/seed.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/seed_skills.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/setup_dev.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webapp/templates/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/workflow/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -63,12 +119,12 @@
     &quot;assignee&quot;: &quot;ha-mim88&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/ha-mim88/AgenticOS_Prototype.git&quot;,
-    &quot;accountId&quot;: &quot;ec668a1b-1bea-433d-bf61-ccb58bb79e6f&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/ha-mim88/AgenticOS.git",
+    "accountId": "ec668a1b-1bea-433d-bf61-ccb58bb79e6f"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5,
   &quot;fromUser&quot;: false
@@ -98,7 +154,6 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
@@ -149,11 +204,71 @@
     <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="b2f540b7-b182-4a88-811d-854aa4b71f74" value="TOOL_WINDOW" />
+        <entry key="a3cda397-598b-488b-b297-c964120d73b6" value="TOOL_WINDOW" />
+      </map>
+    </option>
     <option name="TAB_STATES">
       <map>
         <entry key="MAIN">
           <value>
             <State />
+          </value>
+        </entry>
+        <entry key="a3cda397-598b-488b-b297-c964120d73b6">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="structure">
+                    <value>
+                      <list>
+                        <option value="dir:E:/ha-mim88/AgenticOS/config" />
+                        <option value="dir:E:/ha-mim88/AgenticOS/core" />
+                        <option value="dir:E:/ha-mim88/AgenticOS/intelligence" />
+                        <option value="dir:E:/ha-mim88/AgenticOS/tests" />
+                        <option value="dir:E:/ha-mim88/AgenticOS/webapp" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+            </State>
+          </value>
+        </entry>
+        <entry key="b2f540b7-b182-4a88-811d-854aa4b71f74">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="roots">
+                    <value>
+                      <list>
+                        <option value="$PROJECT_DIR$" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+            </State>
           </value>
         </entry>
       </map>
