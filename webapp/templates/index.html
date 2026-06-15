@@ -7,8 +7,21 @@
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
-:root{--blue:#2196F3;--green:#4CAF50;--red:#f44336;--orange:#FF9800;--purple:#9C27B0;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;--border:#30363d;--text:#e6edf3;--muted:#8b949e}
+:root{
+  --blue:#0366d6;
+  --green:#28a745;
+  --red:#d73a49;
+  --orange:#f66a0a;
+  --purple:#6f42c1;
+  --bg1:#f6f8fa;
+  --bg2:#ffffff;
+  --bg3:#f1f8ff;
+  --bg4:#e1e4e8;
+  --border:#e1e4e8;
+  --text:#24292e;
+  --muted:#586069;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg1);color:var(--text);min-height:100vh}
 .container{max-width:1440px;margin:0 auto;padding:20px}
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
 h1{font-size:22px;font-weight:700;color:#fff}

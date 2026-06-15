@@ -280,11 +280,22 @@ def execute_workflow(workflow_id):
 
 
 def execute_workflow_steps(execution: Execution, workflow: Workflow) -> Dict[str, Any]:
-    """Execute workflow steps, calling agent provider API as needed."""
+    """Execute workflow steps following graph edges (next_step, branches) or sequential order."""
     steps = workflow.steps or []
+    if not steps:
+        return {}
+
+    # Map steps by ID for quick lookup
+    steps_dict = {s.get("id"): s for s in steps}
+    current_step = steps[0]
     context = dict(execution.input_data or {})
 
-    for step in steps:
+    visited_count = 0
+    max_iterations = 50  # Guardrail against infinite loops
+
+    while current_step and visited_count < max_iterations:
+        visited_count += 1
+        step = current_step
         step_id = step.get("id", "unknown")
         action = step.get("action", "")
 
@@ -294,16 +305,74 @@ def execute_workflow_steps(execution: Execution, workflow: Workflow) -> Dict[str
                 context[step_id] = result
                 log_entry(execution, "INFO", f"Step {step_id} completed", step_id)
 
+            elif action == "skill":
+                skill_name = step.get("skill_name")
+                skill = Workflow.query.filter_by(name=skill_name, is_active=True).first()
+                if not skill:
+                    raise RuntimeError(f"Requested skill not found: {skill_name}")
+
+                skill_input = _render_value(step.get("input_map") or {}, context)
+                if not skill_input:
+                    skill_input = context
+
+                # Call the skill execution API
+                skill_result = requests.post(
+                    f"{WEBAPP_BASE_URL}/api/workflows/{skill.id}/execute",
+                    json=skill_input,
+                    timeout=180,
+                )
+                if skill_result.status_code != 200:
+                    raise RuntimeError(f"Skill {skill_name} failed: {skill_result.text[:300]}")
+
+                skill_json = skill_result.json()
+                context[step_id] = skill_json.get("output")
+                log_entry(execution, "INFO", f"Skill {skill_name} completed", step_id)
+
             elif action == "branch":
-                # For now, just execute next steps
-                log_entry(execution, "INFO", f"Step {step_id} branch executed", step_id)
+                # For explicit branching logic, usually handled by 'branches' field on a step
+                log_entry(execution, "INFO", f"Step {step_id} branch point reached", step_id)
 
             else:
                 log_entry(execution, "WARNING", f"Unknown action: {action}", step_id)
 
+            # --- Determine Next Step ---
+            next_step_id = None
+
+            # 1. Check for branching based on step result
+            branches = step.get("branches")
+            if branches and step_id in context:
+                last_result = str(context[step_id]).strip()
+                # Check if last_result matches any branch key
+                for branch_key, target_id in branches.items():
+                    if branch_key.lower() in last_result.lower():
+                        next_step_id = target_id
+                        log_entry(execution, "INFO", f"Branching to {next_step_id} based on result '{branch_key}'", step_id)
+                        break
+
+            # 2. Check for explicit next_step
+            if not next_step_id:
+                next_step_id = step.get("next_step")
+
+            # 3. Follow ID or fallback to sequential if no explicit ID
+            if next_step_id:
+                current_step = steps_dict.get(next_step_id)
+            else:
+                # Sequential fallback
+                try:
+                    idx = steps.index(step)
+                    if idx + 1 < len(steps):
+                        current_step = steps[idx + 1]
+                    else:
+                        current_step = None
+                except ValueError:
+                    current_step = None
+
         except Exception as e:
             log_entry(execution, "ERROR", f"Step {step_id} failed: {e}", step_id)
             raise
+
+    if visited_count >= max_iterations:
+        log_entry(execution, "WARNING", "Maximum iteration limit reached", "execution")
 
     return context
 
@@ -441,34 +510,44 @@ Given a workflow name and description, produce a Mermaid flowchart and a JSON st
 Workflow Name: {name}
 Description: {description}
 
+Available Skills (you can use these with action: "skill"):
+{skills_text}
+
 Respond ONLY with a JSON object in this exact format (no markdown, no explanation):
 {{
-  "mermaid": "flowchart TD\\n    A[Start] --> B[Step]\\n    B --> C[End]",
+  "mermaid": "flowchart TD\\n    A[Start] --> B{{Decision}}\\n    B -- Yes --> C[Step 2]\\n    B -- No --> A",
   "steps": [
     {{
-      "id": "step_id",
+      "id": "step1",
       "action": "call_llm",
       "model": "nemotron",
-      "prompt": "Your prompt here using {{variable_name}}",
-      "temperature": 0.7,
-      "max_tokens": 300
+      "prompt": "Evaluate input: {{text}}. Output 'RETRY' if unclear, else 'PROCEED'.",
+      "branches": {{
+        "RETRY": "step1",
+        "PROCEED": "step2"
+      }}
+    }},
+    {{
+      "id": "step2",
+      "action": "skill",
+      "skill_name": "Some Existing Skill",
+      "input_map": {{ "content": "{{step1}}" }},
+      "next_step": null
     }}
   ]
 }}
 
-CRITICAL INSTRUCTIONS FOR PROMPTS:
-- Use SINGLE curly braces {{ }} for template variables in prompts
-- Do NOT use double braces {{{{ }}}} - those are escape sequences
-- Variable format: {{input_name}} (example: "Analyze: {{text}}" or "Translate to {{language}}")
-- These variables will be replaced at runtime by the workflow engine
-- Never use double braces like {{{{variable}}}} - use {{variable}} instead
-
-Rules:
-- flowchart TD direction only
-- Node labels must describe real steps
-- Use {{variable_name}} syntax for user inputs in prompts (SINGLE braces)
-- 1–3 steps max
-- Use "nemotron" for reasoning tasks, "gemma" for simple/short ones
+CRITICAL INSTRUCTIONS:
+- Mermaid flowchart MUST match the steps array logic (including loops).
+- Use action: "skill" to reuse existing workflows. Provide "skill_name" and "input_map".
+- For LOOPS and BRANCHES:
+  - Use "branches": {{ "Keyword": "target_step_id" }} on a call_llm step.
+  - The engine will jump to target_step_id if the LLM output contains that Keyword.
+  - Use "next_step": "target_id" for explicit jumps (non-sequential).
+- Use SINGLE curly braces {{ }} for template variables in prompts.
+- Variable format: {{input_name}} or {{step_id}}.
+- 1–8 steps max. Use "nemotron" for reasoning, "gemma" for simple tasks.
+- NO comments, NO trailing commas in JSON.
 """
 
 
@@ -482,7 +561,15 @@ def generate_workflow():
     if not name or not description:
         return jsonify({"error": "name and description required"}), 400
 
-    prompt = GENERATION_PROMPT.format(name=_escape_format(name), description=_escape_format(description))
+    # Fetch available skills to include in the prompt
+    skills = Workflow.query.filter_by(is_active=True).order_by(Workflow.name.asc()).all()
+    skills_text = "\n".join([f"- {s.name}: {s.description or ''}" for s in skills])
+
+    prompt = GENERATION_PROMPT.format(
+        name=_escape_format(name), 
+        description=_escape_format(description),
+        skills_text=_escape_format(skills_text)
+    )
 
     try:
         resp = requests.post(
@@ -512,10 +599,11 @@ def generate_workflow():
     if not match:
         return jsonify({"error": "Agent response contained no JSON", "raw": content}), 500
 
+    json_str = _clean_json(match.group())
     try:
-        result = _json.loads(match.group())
+        result = _json.loads(json_str)
     except _json.JSONDecodeError as e:
-        return jsonify({"error": f"JSON parse failed: {e}", "raw": content}), 500
+        return jsonify({"error": f"JSON parse failed: {e}", "raw": json_str}), 500
 
     # Normalize double braces in prompts to single braces
     result_normalized = _normalize_prompts(result)
@@ -539,6 +627,22 @@ def _normalize_prompts(result: Dict[str, Any]) -> Dict[str, Any]:
         return value
 
     return _norm(result)
+
+
+def _clean_json(json_str: str) -> str:
+    """Make common LLM JSON output more robust for standard json.loads."""
+    # Remove trailing commas from objects and arrays
+    json_str = re.sub(r",\s*([\]}])", r"\1", json_str)
+
+    # Remove single-line comments // ... but only if they follow a comma, bracket, or whitespace.
+    # This avoids matching // inside URLs (though not perfect)
+    json_str = re.sub(r"(\s|[,\[{])//.*$", r"\1", json_str, flags=re.MULTILINE)
+
+    # Remove common LLM placeholders that might be left in
+    json_str = re.sub(r",\s*\[Add as many unique steps as needed to fulfill the description\]", "", json_str)
+    json_str = re.sub(r",\s*\[Generate as many unique steps as needed to fulfill the user's request[^\]]*\]", "", json_str)
+
+    return json_str.strip()
 
 
 @app.route("/api/workflows/<int:workflow_id>", methods=["PUT"])
@@ -648,10 +752,11 @@ def vibe_generate():
     if not match:
         return jsonify({"error": "No JSON returned by agent", "raw": content}), 500
 
+    json_str = _clean_json(match.group())
     try:
-        result = _json.loads(match.group())
+        result = _json.loads(json_str)
     except _json.JSONDecodeError as e:
-        return jsonify({"error": f"JSON parse failed: {e}", "raw": content}), 500
+        return jsonify({"error": f"JSON parse failed: {e}", "raw": json_str}), 500
 
     result = _normalize_prompts(result)
     return jsonify(result)
@@ -879,16 +984,17 @@ Available skills you may use when appropriate:
 Hard rules:
 - Prefer existing skills by name when they fit the task.
 - If no skill fits, use a direct LLM call with Nemotron.
-- Add failure guardrails to every branch.
-- Stop and log if max depth or iteration limits may be exceeded.
-- Use single curly braces only in runtime template variables like {{thoughts}}, {{output_spec}}, {{input}}, {{context}}.
-- Do not output double braces in any prompt field.
+- Use single curly braces only in runtime template variables like {{thoughts}}, {{output_spec}}, {{input}}, {{context}}, or {{step_id}}.
+- For LOOPS and BRANCHES:
+  - Use "branches": {{ "Keyword": "target_step_id" }} on a call_llm step.
+  - The engine will jump to target_step_id if the LLM output contains that Keyword.
+  - Use "next_step": "target_id" for explicit jumps (non-sequential).
 
 Return ONLY JSON in this exact structure:
 {{
-  "title": "...",
-  "mermaid": "flowchart TD\\n    A[Start] --> B[Guardrails]\\n    B --> C[Skill or LLM]\\n    C --> D[Output]",
-  "generated_summary": "...",
+  "title": "Concise title",
+  "mermaid": "flowchart TD\\n    A[Start] --> B{{Decision}}\\n    B -- Yes --> C[Step 2]\\n    B -- No --> A",
+  "generated_summary": "1-2 sentence summary",
   "guardrails": {{
     "max_depth": {max_depth},
     "max_iterations_per_depth": {max_iterations},
@@ -902,25 +1008,27 @@ Return ONLY JSON in this exact structure:
     }},
     {{
       "id": "s1",
-      "action": "skill",
-      "skill_name": "Content Summarizer",
-      "input_map": {{"content": "{{thoughts}}"}}
-    }},
-    {{
-      "id": "llm1",
       "action": "call_llm",
-      "model": "nemotron",
-      "prompt": "Use the result of {{thoughts}} to continue the plan safely."
+      "prompt": "Analyze input. Output 'LOOP' to retry or 'DONE' to finish.",
+      "branches": {{
+        "LOOP": "s1",
+        "DONE": "o1"
+      }}
     }},
     {{
       "id": "o1",
       "action": "write_output",
-      "model": "nemotron",
-      "format": "markdown",
-      "prompt": "Format the final output to satisfy: {{output_spec}}"
+      "prompt": "Final report based on {{s1}}"
     }}
   ]
 }}
+
+CRITICAL INSTRUCTIONS:
+- Add as many unique steps as needed to the "steps" array.
+- Mermaid flowchart MUST match the steps array logic (including loops).
+- Each step MUST have an id, action, and relevant fields.
+- Use {{thoughts}} and {{output_spec}} as variables where needed.
+- NO comments, NO trailing commas in the JSON output.
 """
 
 
@@ -1127,6 +1235,12 @@ def _run_vibe_execution(execution_guid: str) -> None:
 
         plan = task.generated_plan or {}
         steps = plan.get("steps", [])
+        if not steps:
+            _vibe_log(execution, "ERROR", "start", "No steps found in plan")
+            return
+
+        steps_dict = {s.get("id"): s for s in steps}
+        current_step = steps[0]
         context: Dict[str, Any] = {
             "thoughts": task.thoughts,
             "output_spec": task.output_spec,
@@ -1142,23 +1256,26 @@ def _run_vibe_execution(execution_guid: str) -> None:
             "max_iterations_per_depth": task.max_iterations_per_depth,
         })
 
-        try:
-            if len(steps) > task.max_depth:
-                raise RuntimeError(f"Plan exceeds max depth ({task.max_depth})")
+        visited_count = 0
+        max_iterations = task.max_iterations_per_depth or 50
 
-            for idx, step in enumerate(steps, start=1):
-                step_id = step.get("id", f"step_{idx}")
+        try:
+            while current_step and visited_count < max_iterations:
+                visited_count += 1
+                step = current_step
+                step_id = step.get("id", f"step_{visited_count}")
                 action = step.get("action", "")
-                _vibe_log(execution, "INFO", step_id, f"Step {idx}/{len(steps)} started: {action}", step)
+
+                _vibe_log(execution, "INFO", step_id, f"Iteration {visited_count} started: {action}", step)
 
                 if action == "guardrail":
                     _vibe_log(execution, "INFO", step_id, "Guardrail validated", {
                         "max_depth": task.max_depth,
                         "max_iterations_per_depth": task.max_iterations_per_depth,
                     })
-                    continue
-
-                if action == "skill":
+                    # Guardrail is a no-op in execution loop, just continue
+                
+                elif action == "skill":
                     skill_name = step.get("skill_name")
                     skill = Workflow.query.filter_by(name=skill_name, is_active=True).first()
                     if not skill:
@@ -1190,7 +1307,7 @@ def _run_vibe_execution(execution_guid: str) -> None:
                     total_tokens += nested_tokens
                     latest_model = latest_model or "workflow-skill"
 
-                    _write_json(output_dir / f"{idx:02d}_{step_id}_skill.json", {
+                    _write_json(output_dir / f"{visited_count:02d}_{step_id}_skill.json", {
                         "skill_name": skill_name,
                         "input": skill_input,
                         "result": skill_json,
@@ -1199,9 +1316,8 @@ def _run_vibe_execution(execution_guid: str) -> None:
                         "nested_execution": nested_exec_id,
                         "tokens_used": nested_tokens,
                     })
-                    continue
 
-                if action == "call_llm":
+                elif action == "call_llm":
                     model = step.get("model", "nemotron")
                     prompt = _safe_dict_format(step.get("prompt", ""), context)
                     llm = _call_agent_completion(
@@ -1213,7 +1329,7 @@ def _run_vibe_execution(execution_guid: str) -> None:
                     context[step_id] = llm["content"]
                     total_tokens += int(llm["tokens"] or 0)
                     latest_model = model
-                    _write_json(output_dir / f"{idx:02d}_{step_id}_llm.json", {
+                    _write_json(output_dir / f"{visited_count:02d}_{step_id}_llm.json", {
                         "prompt": prompt,
                         "result": llm["content"],
                         "tokens": llm["tokens"],
@@ -1222,9 +1338,8 @@ def _run_vibe_execution(execution_guid: str) -> None:
                         "model": model,
                         "tokens_used": llm["tokens"],
                     })
-                    continue
 
-                if action == "write_output":
+                elif action == "write_output":
                     model = step.get("model", "nemotron")
                     fmt = (step.get("format") or task.output_spec or "txt").lower()
                     output_prompt = _safe_dict_format(step.get("prompt") or f"Format the final result to satisfy: {task.output_spec}", context)
@@ -1240,7 +1355,7 @@ def _run_vibe_execution(execution_guid: str) -> None:
                     output_file = output_dir / f"final_output.{ext}"
                     output_file.write_text(llm["content"], encoding="utf-8")
                     context[step_id] = str(output_file)
-                    _write_json(output_dir / f"{idx:02d}_{step_id}_output_meta.json", {
+                    _write_json(output_dir / f"{visited_count:02d}_{step_id}_output_meta.json", {
                         "format": fmt,
                         "path": str(output_file),
                         "tokens": llm["tokens"],
@@ -1249,9 +1364,42 @@ def _run_vibe_execution(execution_guid: str) -> None:
                         "path": str(output_file),
                         "format": fmt,
                     })
-                    continue
 
-                _vibe_log(execution, "WARNING", step_id, f"Unknown step action: {action}", step)
+                else:
+                    _vibe_log(execution, "WARNING", step_id, f"Unknown step action: {action}", step)
+
+                # --- Determine Next Step ---
+                next_step_id = None
+
+                # 1. Branching
+                branches = step.get("branches")
+                if branches and step_id in context:
+                    last_result = str(context[step_id]).strip()
+                    for branch_key, target_id in branches.items():
+                        if branch_key.lower() in last_result.lower():
+                            next_step_id = target_id
+                            _vibe_log(execution, "INFO", step_id, f"Branching to {next_step_id} based on result keyword '{branch_key}'")
+                            break
+
+                # 2. Explicit next_step
+                if not next_step_id:
+                    next_step_id = step.get("next_step")
+
+                # 3. Follow ID or fallback to sequential
+                if next_step_id:
+                    current_step = steps_dict.get(next_step_id)
+                else:
+                    try:
+                        idx = steps.index(step)
+                        if idx + 1 < len(steps):
+                            current_step = steps[idx + 1]
+                        else:
+                            current_step = None
+                    except ValueError:
+                        current_step = None
+
+            if visited_count >= max_iterations:
+                _vibe_log(execution, "WARNING", "execution", f"Maximum iteration limit ({max_iterations}) reached")
 
             summary = {
                 "task_number": task.task_number,
@@ -1266,7 +1414,7 @@ def _run_vibe_execution(execution_guid: str) -> None:
             execution.status = "success"
             execution.token_usage = total_tokens
             execution.model_used = latest_model
-            execution.step_count = len(steps)
+            execution.step_count = visited_count
             execution.output_data = summary
             execution.completed_at = _utcnow()
             db.session.commit()
@@ -1276,7 +1424,7 @@ def _run_vibe_execution(execution_guid: str) -> None:
             execution.status = "failed"
             execution.error_message = str(exc)
             execution.completed_at = _utcnow()
-            execution.step_count = len(steps)
+            execution.step_count = visited_count
             execution.token_usage = total_tokens
             execution.model_used = latest_model
             db.session.commit()

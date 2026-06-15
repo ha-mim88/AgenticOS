@@ -133,6 +133,7 @@ def seed_webapp_db() -> None:
 
 def main() -> None:
     procs: list[subprocess.Popen] = []
+    proc_map: dict[subprocess.Popen, str] = {}
 
     def shutdown(sig=None, frame=None):
         cprint("runner", "Stopping all services …")
@@ -157,6 +158,7 @@ def main() -> None:
     for svc in SERVICES:
         proc = start_service(svc)
         procs.append(proc)
+        proc_map[proc] = svc["name"]
 
     # ── Wait for each service to become healthy ────────────────────────────
     all_healthy = True
@@ -183,11 +185,7 @@ def main() -> None:
         while True:
             for proc in procs:
                 if proc.poll() is not None:
-                    name = next(
-                        (s["name"] for s in SERVICES
-                         if SERVICES.index(s) == procs.index(proc)),
-                        "unknown",
-                    )
+                    name = proc_map.get(proc, "unknown")
                     cprint("runner", f"⚠  {name} exited unexpectedly (code {proc.returncode})", err=True)
             time.sleep(2)
     except KeyboardInterrupt:
